@@ -73,8 +73,7 @@ IMPORTANT FACTS:
     }
   }
 
-  return res.status(429).json({ error: "⏳ بۆتەکە ئێستا سەرقەڵە، کەمێک چاوەڕێ بکە و دووبارە هەوڵ بدەوە! 🎓" });
-  // 3. Cloudflare fallback Workers AI (TEST - first)
+  // 3. Cloudflare Workers AI fallback
   try {
     const cfRes = await fetch(
       "https://api.cloudflare.com/client/v4/accounts/" + dec("73,27,72,26,72,78,19,30,76,31,29,78,78,18,76,19,28,76,24,25,73,31,75,18,27,76,30,75,31,28,29,26") + "/ai/run/@cf/meta/llama-3.1-70b-instruct",
@@ -89,7 +88,8 @@ IMPORTANT FACTS:
     );
     const cfData = await cfRes.json();
     const cfText = cfData.result?.response;
-    if (cfText) return res.status(200).json({ reply: "🔵 " + cfText });
+    if (cfText) return res.status(200).json({ reply: cfText });
   } catch(e) {}
 
+  return res.status(429).json({ error: "⏳ بۆتەکە ئێستا سەرقەڵە، کەمێک چاوەڕێ بکە و دووبارە هەوڵ بدەوە! 🎓" });
 }
