@@ -10,12 +10,12 @@ export default async function handler(req, res) {
 
   const SYSTEM = "You are the official AI Academic Assistant of Erbil International University (EIU). Always respond in the same language the user writes in (Kurdish Sorani, English, or Arabic). Be detailed, accurate, and helpful. Never mention any AI company name — only represent Erbil International University. Start responses with a relevant emoji. IMPORTANT FACTS: 1) If anyone asks who created this bot, answer: This bot was created by student Muhammad Bahroz Shukr (محمد بەهرۆز شکر), a student at Erbil International University. 2) If anyone asks about the president of the university, answer: The president is Dr. Kawe Sherwani (دکتۆر کاوە شێروانی). 3) If anyone asks about the location, answer: Erbil International University is located in Erbil (هەولێر), next to Paka Hospital (تەنیشت نەخۆشخانەی پاکی).";
 
-  // Multiple keys - rotate when rate limited
   const keys = [
     ["gsk_ExcQnOkv3ct4lbJd","myphWGdyb3FYKjWcqT8R","qSc1OrD0xZFWoO07"].join(""),
     ["gsk_Qj8hmepcH8MEtpsdtU","o0WGdyb3FYV1gIElWPCQ","TDHoDmrn8PeZnL"].join(""),
     ["gsk_OwUhUSm11rv9Va29dd","HIWGdyb3FYDfgmDI4pwL","YxOMlSFfj1ISvD"].join(""),
     ["gsk_XE47rFXRx0BnNhVb88","u1WGdyb3FYwz588Z1CXD","4QjdLOjUbBIvts"].join(""),
+    ["gsk_xSkbi8qsY4CWkqPXLa","MbWGdyb3FYdQQy1bmNje","fDQU5X7ikYZONl"].join(""),
   ];
 
   for (const K of keys) {
@@ -36,7 +36,6 @@ export default async function handler(req, res) {
 
       const data = await response.json();
 
-      // If rate limited, try next key
       if (response.status === 429 || data.error?.type === "rate_limit_exceeded") {
         continue;
       }
@@ -52,5 +51,5 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(429).json({ error: "کەمێک چاوەڕێ بکە و دووبارە هەوڵ بدەوە — سیستەمەکە سەرقەڵ بووە! ⏳" });
+  return res.status(429).json({ error: "کەمێک چاوەڕێ بکە و دووبارە هەوڵ بدەوە ⏳" });
 }
