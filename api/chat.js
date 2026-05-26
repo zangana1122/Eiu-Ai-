@@ -46,14 +46,14 @@ IMPORTANT FACTS:
   // 1. Cloudflare Workers AI (TEST - first)
   try {
     const cfRes = await fetch(
-      "https://api.cloudflare.com/client/v4/accounts/" + dec("73,27,72,26,72,78,19,30,76,31,29,78,78,18,76,19,28,76,24,25,73,31,75,18,27,76,30,75,31,28,29,26") + "/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "https://api.cloudflare.com/client/v4/accounts/" + dec("73,27,72,26,72,78,19,30,76,31,29,78,78,18,76,19,28,76,24,25,73,31,75,18,27,76,30,75,31,28,29,26") + "/ai/run/@cf/meta/llama-3.1-70b-instruct",
       {
         method: "POST",
         headers: {
           "Authorization": "Bearer " + dec("73,76,75,94,117,77,93,121,25,83,107,91,80,112,108,126,29,92,101,77,96,112,72,26,26,28,24,27,109,107,115,77,105,79,26,30,67,110,25,98,31,89,115,126,115,30,24,18,72,73,18,73,79"),
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ messages: [{role:"system",content:SYSTEM},...messages] })
+        body: JSON.stringify({ messages: [{role:"system",content:SYSTEM},...messages], max_tokens: 4096 })
       }
     );
     const cfData = await cfRes.json();
