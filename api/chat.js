@@ -47,5 +47,6 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(429).json({ error: "کەمێک چاوەڕێ بکە و دووبارە هەوڵ بدەوە ⏳" });
+  // All keys rate limited
+  return res.status(429).json({ error: "⏳ بۆتەکە ئێستا سەرقەڵە، پاش ٢٤ کاتژمێر دووبارە کار دەکاتەوە. سوپاس بۆ تێگەیشتنت! 🎓" });
 }
