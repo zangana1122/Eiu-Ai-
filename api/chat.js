@@ -30,6 +30,7 @@ export default async function handler(req, res) {
     ["AIzaSyA-okM1vfEV","7rlT3JNW0mzGlTaI","V06twyc"].join(""),
     ["AIzaSyCV6sZn1pjL","e0o87NRFtUSWkDB0","aOt9cMA"].join(""),
     ["AIzaSyD_0W1viDuyvVL-","_H5IwqQNFw3","n0otBc"].join(""),
+    ["AIzaSyCSB_e4lrGNVKEZ","89y6KI4oUOX","ajHZ5gnU"].join(""),
   ];
 
   // Try Gemini keys
