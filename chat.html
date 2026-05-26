@@ -190,6 +190,58 @@ inp.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 document.querySelectorAll('.tp').forEach(t => {
   t.addEventListener('click', () => send(t.dataset.q));
 });
+
+// ── AUTH CHECK ──
+(function(){
+  var s=null;
+  try{s=JSON.parse(localStorage.getItem('eiu_session'));}catch(e){}
+  if(!s||!s.access_token||s.expires_at<Date.now()/1000){
+    window.location.href='/login.html';return;
+  }
+  var SBU='https://shisqmcnezokrpsalzfy.supabase.co';
+  var SBK='sb_publishable_LwIS-lvz7ASpP9e4KU9Q_Q_mrerizi4';
+  var uid=s.user.id;
+  var tok=s.access_token;
+
+  // Load history from Supabase
+  fetch(SBU+'/rest/v1/chat_history?user_id=eq.'+uid+'&select=messages&limit=1',{
+    headers:{'apikey':SBK,'Authorization':'Bearer '+tok}
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d&&d[0]&&d[0].messages&&d[0].messages.length){
+      var h=d[0].messages;
+      var msgsEl=document.getElementById('msgs');
+      msgsEl.innerHTML='';
+      h.forEach(function(m){
+        if(m.role==='user')addMsg(m.content,'user');
+        else addMsg(m.content,'ai');
+      });
+      window._history=h;
+    }
+  }).catch(function(){});
+
+  // Save history function
+  window.saveToSupabase=function(hist){
+    fetch(SBU+'/rest/v1/chat_history?user_id=eq.'+uid,{
+      method:'PATCH',
+      headers:{'apikey':SBK,'Authorization':'Bearer '+tok,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({messages:hist.slice(-100),updated_at:new Date().toISOString()})
+    }).then(function(r){
+      if(r.status===404||r.status===0){
+        return fetch(SBU+'/rest/v1/chat_history',{
+          method:'POST',
+          headers:{'apikey':SBK,'Authorization':'Bearer '+tok,'Content-Type':'application/json'},
+          body:JSON.stringify({user_id:uid,user_email:s.user.email,messages:hist.slice(-100)})
+        });
+      }
+    }).catch(function(){});
+  };
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click',function(){
+    localStorage.removeItem('eiu_session');
+    window.location.href='/login.html';
+  });
+})();
 </script>
 </body>
 </html>
