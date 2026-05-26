@@ -53,7 +53,7 @@ IMPORTANT FACTS:
   for (const GK of gemKeys) {
     try {
       const gemRes = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + GK,
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + GK,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
