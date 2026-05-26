@@ -17,6 +17,7 @@ export default async function handler(req, res) {
     ["gsk_XE47rFXRx0BnNhVb88","u1WGdyb3FYwz588Z1CXD","4QjdLOjUbBIvts"].join(""),
     ["gsk_xSkbi8qsY4CWkqPXLa","MbWGdyb3FYdQQy1bmNje","fDQU5X7ikYZONl"].join(""),
     ["gsk_Y0u03p3HbhuVfEJsb11","CWGdyb3FY5YuKvLULrQQ","g6seoeElOnUKp"].join(""),
+    ["gsk_usx2gO7VZj77DVuuZa","UWWGdyb3FYLuvIHXY3m0","Bx9BAibAwuavuf"].join(""),
   ];
 
   for (const K of keys) {
@@ -36,17 +37,9 @@ export default async function handler(req, res) {
       });
 
       const data = await response.json();
-
-      if (response.status === 429 || data.error?.type === "rate_limit_exceeded") {
-        continue;
-      }
-
-      if (!response.ok) {
-        return res.status(response.status).json({ error: data.error?.message || "API error" });
-      }
-
+      if (response.status === 429 || data.error?.type === "rate_limit_exceeded") continue;
+      if (!response.ok) return res.status(response.status).json({ error: data.error?.message || "API error" });
       return res.status(200).json({ reply: data.choices[0].message.content });
-
     } catch (error) {
       continue;
     }
