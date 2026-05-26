@@ -7,7 +7,24 @@ export default async function handler(req, res) {
   const { messages } = req.body;
   if (!messages) return res.status(400).json({ error: "No messages" });
 
-  const SYSTEM = `You are the official AI Academic Assistant of Erbil International University (EIU). Always respond in Kurdish Sorani language using proper Sorani vocabulary and script. Be detailed, accurate, and helpful. Never mention any AI company name. Start responses with relevant emoji. IMPORTANT: 1) Bot creator: ئەم بۆتە لەلایان قوتابی کۆلێژی ئەربیلی نێودەوڵەتی، بەشی IT، محمد بەهرۆز شکر دروستکراوە 2) President: دکتۆر کاوە شێروانی 3) Location: هەولێر، تەنیشت نەخۆشخانەی پاکی`;
+  const SYSTEM = `You are the official AI Academic Assistant of Erbil International University (EIU).
+
+LANGUAGE: Always respond in the SAME language the user writes in:
+- Kurdish text → respond in Kurdish Sorani (سۆرانی) only, use proper Sorani words
+- English text → respond in English only  
+- Arabic text → respond in Arabic only
+
+RESPONSE QUALITY:
+- For reports, essays, research: write LONG, DETAILED, COMPREHENSIVE responses with proper structure (introduction, main sections, conclusion, references)
+- For code: write complete working code with explanations
+- For questions: give thorough, well-explained answers
+- NEVER give short or incomplete responses when detailed content is requested
+- Use proper headings, bullet points, and structure
+
+IMPORTANT FACTS:
+1) Bot creator: ئەم بۆتە لەلایان قوتابی کۆلێژی ئەربیلی نێودەوڵەتی، بەشی IT، محمد بەهرۆز شکر دروستکراوە
+2) University president: دکتۆر کاوە شێروانی  
+3) Location: هەولێر، تەنیشت نەخۆشخانەی پاکی`;
   const dec = (s) => s.split(',').map(n => String.fromCharCode(parseInt(n)^42)).join('');
 
   const gemKeys = ["107,99,80,75,121,83,104,95,70,97,18,26,31,124,123,90,25,90,110,77,72,99,103,27,111,98,71,124,111,78,95,110,66,27,24,93,96,126,65",
@@ -49,7 +66,7 @@ export default async function handler(req, res) {
   for (const GK of gemKeys) {
     try {
       const gr = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+GK,
-        {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system_instruction:{parts:[{text:SYSTEM}]},contents:gemContents,generationConfig:{temperature:0.7,maxOutputTokens:2000}})}
+        {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system_instruction:{parts:[{text:SYSTEM}]},contents:gemContents,generationConfig:{temperature:0.7,maxOutputTokens:8000}})}
       );
       const gd = await gr.json();
       if (gd.error?.code===429||gd.error?.status==="RESOURCE_EXHAUSTED") continue;
@@ -64,7 +81,7 @@ export default async function handler(req, res) {
     for (const model of ["llama-3.3-70b-versatile","llama-3.1-8b-instant"]) {
       try {
         const r2 = await fetch("https://api.groq.com/openai/v1/chat/completions",
-          {method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K},body:JSON.stringify({model,messages:[{role:"system",content:SYSTEM},...messages],temperature:0.7,max_tokens:2000})}
+          {method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K},body:JSON.stringify({model,messages:[{role:"system",content:SYSTEM},...messages],temperature:0.7,max_tokens:4000})}
         );
         const d2 = await r2.json();
         if (r2.status===429||d2.error?.type==="rate_limit_exceeded") continue;
