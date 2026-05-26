@@ -13,6 +13,7 @@ export default async function handler(req, res) {
   const gemKeys = [
     ["AIzaSyBulK805VQ","p3pDgbIM1EHmVEdu","Dh12wJTk"].join(""),
     ["AIzaSyA-okM1vfEV","7rlT3JNW0mzGlTaI","V06twyc"].join(""),
+    ["AIzaSyCV6sZn1pjL","e0o87NRFtUSWkDB0","aOt9cMA"].join(""),
   ];
 
   const gemContents = messages.map(m => ({
@@ -20,7 +21,6 @@ export default async function handler(req, res) {
     parts: [{ text: m.content }]
   }));
 
-  // Try both Gemini keys
   for (const GK of gemKeys) {
     try {
       const gemResponse = await fetch(
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     } catch(e) {}
   }
 
-  // Groq fallback - 9 keys x 2 models
+  // Groq fallback
   const groqAttempts = [
     { k: ["gsk_ExcQnOkv3ct4lbJd","myphWGdyb3FYKjWcqT8R","qSc1OrD0xZFWoO07"].join(""), m: "llama-3.3-70b-versatile" },
     { k: ["gsk_Qj8hmepcH8MEtpsdtU","o0WGdyb3FYV1gIElWPCQ","TDHoDmrn8PeZnL"].join(""), m: "llama-3.3-70b-versatile" },
