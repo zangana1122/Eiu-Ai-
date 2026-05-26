@@ -317,6 +317,18 @@ pre code{color:#E0F0FF}
   .input-zone{padding:10px 12px 16px}
   .bubble{max-width:85%}
   .logo-sub{display:none}
+  .logo-name{font-size:0.82rem}
+  .clear-btn span{display:none}
+  .online-txt{display:none}
+  .lang-switcher{gap:3px}
+  .lang-btn{padding:5px 8px;font-size:0.68rem}
+}
+@media(max-width:480px){
+  header{padding:0 10px;height:54px}
+  .logo-img{width:34px;height:34px}
+  .logo-name{font-size:0.75rem}
+  .lang-switcher{display:none}
+  .mob-menu{display:flex !important}
 }
 @media(max-width:480px){
   header{height:56px;padding:0 12px}
@@ -341,14 +353,14 @@ pre code{color:#E0F0FF}
     </div>
   </div>
   <div class="header-actions">
-    <div class="online-pill"><div class="online-dot"></div><span class="online-txt">Online</span></div>
-    <div class="lang-switcher">
+    <div class="online-pill"><div class="online-dot"></div><span class="online-txt" id="onlineTxt">Online</span></div>
+    <div class="lang-switcher" id="langSwitcher">
       <button class="lang-btn active" id="langKu" onclick="setLang('ku')">کوردی</button>
-      <button class="lang-btn" id="langAr" onclick="setLang('ar')">عربي</button>
+      <button class="lang-btn" id="langAr" onclick="setLang('ar')">ع</button>
       <button class="lang-btn" id="langEn" onclick="setLang('en')">EN</button>
     </div>
     <button class="theme-btn" id="themeBtn" title="گۆڕینی تیم">🌙</button>
-    <button class="clear-btn" id="clearBtn">🗑️ سڕینەوە</button>
+    <button class="clear-btn" id="clearBtn">🗑️</button>
   </div>
 </header>
 
@@ -357,8 +369,14 @@ pre code{color:#E0F0FF}
 <div class="layout">
   <div class="sidebar" id="sidebar">
     <button class="mob-close" id="mobClose">✕ داخستن</button>
+    <!-- Mobile lang switcher -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;justify-content:center" class="mobile-lang-btns">
+      <button class="lang-btn active" id="mobLangKu" onclick="setLang('ku');closeSidebar()" style="flex:1;border:1px solid var(--border2);border-radius:10px;padding:8px">کوردی</button>
+      <button class="lang-btn" id="mobLangAr" onclick="setLang('ar');closeSidebar()" style="flex:1;border:1px solid var(--border);border-radius:10px;padding:8px">عربي</button>
+      <button class="lang-btn" id="mobLangEn" onclick="setLang('en');closeSidebar()" style="flex:1;border:1px solid var(--border);border-radius:10px;padding:8px">EN</button>
+    </div>
     <div>
-      <div class="sec-label">⚡ بابەتی خێرا</div>
+      <div class="sec-label" id="quickLabel">⚡ بابەتی خێرا</div>
       <button class="topic" data-q="ڕێنماییەکی تەواو بنووسە بۆ چۆنیەتی نووسینی ڕاپۆرتی ئەکادیمی"><span class="topic-icon">📄</span>نووسینی ڕاپۆرت</button>
       <button class="topic" data-q="٥ بابەتی توێژینەوە پێشنیار بکە لە بواری زیرەکی دەستکرد بۆ EIU"><span class="topic-icon">🤖</span>توێژینەوەی AI</button>
       <button class="topic" data-q="کۆدی Python بنووسە بۆ شیکردنەوەی فایلی CSV بە pandas"><span class="topic-icon">🐍</span>کۆدی Python</button>
@@ -601,11 +619,15 @@ function setLang(lang) {
     btn.dataset.q = L.sugQ[i] || btn.dataset.q;
   });
 
-  // Update active lang button
+  // Update active lang button - both header and mobile
   ['ku','ar','en'].forEach(l => {
-    document.getElementById('lang'+l.charAt(0).toUpperCase()+l.slice(1))?.classList.remove('active');
+    const cap = l.charAt(0).toUpperCase()+l.slice(1);
+    document.getElementById('lang'+cap)?.classList.remove('active');
+    document.getElementById('mobLang'+cap)?.classList.remove('active');
   });
-  document.getElementById('lang'+lang.charAt(0).toUpperCase()+lang.slice(1))?.classList.add('active');
+  const cap = lang.charAt(0).toUpperCase()+lang.slice(1);
+  document.getElementById('lang'+cap)?.classList.add('active');
+  document.getElementById('mobLang'+cap)?.classList.add('active');
 }
 
 // Apply saved language on load
