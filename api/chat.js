@@ -43,7 +43,38 @@ IMPORTANT FACTS:
     "77,89,65,117,28,105,73,109,66,71,126,65,98,70,75,102,107,124,104,71,79,64,66,127,125,109,78,83,72,25,108,115,72,19,18,69,76,91,73,83,123,104,24,123,82,73,72,26,101,69,111,76,28,94,120,91",
     "77,89,65,117,19,26,125,26,91,125,69,26,77,70,66,101,97,72,110,112,78,94,25,94,125,109,78,83,72,25,108,115,123,28,68,112,114,29,24,96,90,109,83,123,25,122,91,108,65,28,67,127,75,19,65,112"].map(dec).sort(()=>Math.random()-0.5);
 
-  // 1. Cloudflare Workers AI (TEST - first)
+  // 1. Gemini Flash
+  const gemContents = messages.map(m => ({role: m.role==="assistant"?"model":"user", parts:[{text:m.content}]}));
+  for (const GK of gemKeys) {
+    try {
+      const gr = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+GK,
+        {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system_instruction:{parts:[{text:SYSTEM}]},contents:gemContents,generationConfig:{temperature:0.7,maxOutputTokens:8000}})}
+      );
+      const gd = await gr.json();
+      if (gd.error?.code===429||gd.error?.status==="RESOURCE_EXHAUSTED") continue;
+      if (gd.error) continue;
+      const t = gd.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (t) return res.status(200).json({ reply: t });
+    } catch(e) { continue; }
+  }
+
+  // 2. Groq fallback
+  for (const K of groqKeys) {
+    for (const model of ["llama-3.3-70b-versatile","llama-3.1-8b-instant"]) {
+      try {
+        const r2 = await fetch("https://api.groq.com/openai/v1/chat/completions",
+          {method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K},body:JSON.stringify({model,messages:[{role:"system",content:SYSTEM},...messages],temperature:0.7,max_tokens:4000})}
+        );
+        const d2 = await r2.json();
+        if (r2.status===429||d2.error?.type==="rate_limit_exceeded") continue;
+        if (!r2.ok) continue;
+        return res.status(200).json({ reply: d2.choices[0].message.content });
+      } catch(e) { continue; }
+    }
+  }
+
+  return res.status(429).json({ error: "⏳ بۆتەکە ئێستا سەرقەڵە، کەمێک چاوەڕێ بکە و دووبارە هەوڵ بدەوە! 🎓" });
+  // 3. Cloudflare fallback Workers AI (TEST - first)
   try {
     const cfRes = await fetch(
       "https://api.cloudflare.com/client/v4/accounts/" + dec("73,27,72,26,72,78,19,30,76,31,29,78,78,18,76,19,28,76,24,25,73,31,75,18,27,76,30,75,31,28,29,26") + "/ai/run/@cf/meta/llama-3.1-70b-instruct",
@@ -61,35 +92,4 @@ IMPORTANT FACTS:
     if (cfText) return res.status(200).json({ reply: "🔵 " + cfText });
   } catch(e) {}
 
-  // 2. Gemini Flash
-  const gemContents = messages.map(m => ({role: m.role==="assistant"?"model":"user", parts:[{text:m.content}]}));
-  for (const GK of gemKeys) {
-    try {
-      const gr = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+GK,
-        {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system_instruction:{parts:[{text:SYSTEM}]},contents:gemContents,generationConfig:{temperature:0.7,maxOutputTokens:8000}})}
-      );
-      const gd = await gr.json();
-      if (gd.error?.code===429||gd.error?.status==="RESOURCE_EXHAUSTED") continue;
-      if (gd.error) continue;
-      const t = gd.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (t) return res.status(200).json({ reply: t });
-    } catch(e) { continue; }
-  }
-
-  // 3. Groq
-  for (const K of groqKeys) {
-    for (const model of ["llama-3.3-70b-versatile","llama-3.1-8b-instant"]) {
-      try {
-        const r2 = await fetch("https://api.groq.com/openai/v1/chat/completions",
-          {method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+K},body:JSON.stringify({model,messages:[{role:"system",content:SYSTEM},...messages],temperature:0.7,max_tokens:4000})}
-        );
-        const d2 = await r2.json();
-        if (r2.status===429||d2.error?.type==="rate_limit_exceeded") continue;
-        if (!r2.ok) continue;
-        return res.status(200).json({ reply: d2.choices[0].message.content });
-      } catch(e) { continue; }
-    }
-  }
-
-  return res.status(429).json({ error: "⏳ بۆتەکە ئێستا سەرقەڵە، کەمێک چاوەڕێ بکە و دووبارە هەوڵ بدەوە! 🎓" });
 }
