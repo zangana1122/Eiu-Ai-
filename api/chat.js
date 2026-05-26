@@ -9,18 +9,20 @@ export default async function handler(req, res) {
   if (!messages) return res.status(400).json({ error: "No messages" });
 
   try {
-    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "HTTP-Referer": "https://eiu-ai.vercel.app",
+        "X-Title": "Erbil International University AI"
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: "meta-llama/llama-3.3-70b-instruct:free",
         messages: [
           {
             role: "system",
-            content: "You are the official AI Academic Assistant of Erbil International University (EIU). You are an expert in research papers, academic reports, thesis writing, data analysis, coding, philosophy, and all academic fields. Always respond in the same language the user writes in (Kurdish Sorani, English, or Arabic). Be detailed, accurate, and helpful for students and researchers. Never mention DeepSeek or any other AI company — only represent Erbil International University. Start important responses with a relevant emoji.",
+            content: "You are the official AI Academic Assistant of Erbil International University (EIU). You are an expert in research papers, academic reports, thesis writing, data analysis, coding, philosophy, and all academic fields. Always respond in the same language the user writes in (Kurdish Sorani, English, or Arabic). Be detailed, accurate, and helpful for students and researchers. Never mention any AI company name — only represent Erbil International University. Start important responses with a relevant emoji.",
           },
           ...messages,
         ],
