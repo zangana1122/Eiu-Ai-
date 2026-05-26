@@ -429,19 +429,10 @@ overlay.addEventListener('click', closeSidebar);
 
 // ── Format text ──
 function formatText(text) {
-  // Code blocks
-  text = text.replace(/```(\w*)
-?([\s\S]*?)```/g, (_, lang, code) => {
-    const escaped = code.replace(/</g,'&lt;').replace(/>/g,'&gt;').trim();
-    return `<pre><button class="copy-btn" onclick="copyCode(this)">کۆپی</button><code>${escaped}</code></pre>`;
-  });
-  // Inline code
-  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
   // Bold
   text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   // Newlines
-  text = text.replace(/
-/g, '<br>');
+  text = text.split('\n').join('<br>');
   return text;
 }
 
