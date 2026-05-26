@@ -256,6 +256,26 @@ pre code{color:#E0F0FF}
 .send:disabled{opacity:0.3;cursor:not-allowed;transform:none}
 .hint{text-align:center;font-size:0.6rem;color:var(--muted);margin-top:7px;letter-spacing:0.3px}
 
+/* Language Switcher */
+.lang-switcher{
+  display:flex;align-items:center;gap:6px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:30px;padding:4px;
+}
+.lang-btn{
+  background:transparent;border:none;
+  border-radius:24px;padding:5px 12px;
+  font-size:0.72rem;font-weight:700;
+  color:var(--muted);cursor:pointer;
+  transition:all 0.2s;font-family:"Scheherazade New",serif;
+}
+.lang-btn.active{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:var(--bg);
+}
+.lang-btn:hover:not(.active){color:var(--gold2)}
+
 /* ═══ MOBILE SIDEBAR TOGGLE ═══ */
 .mob-menu{
   display:none;background:var(--surface2);
@@ -322,6 +342,11 @@ pre code{color:#E0F0FF}
   </div>
   <div class="header-actions">
     <div class="online-pill"><div class="online-dot"></div><span class="online-txt">Online</span></div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="langKu" onclick="setLang('ku')">کوردی</button>
+      <button class="lang-btn" id="langAr" onclick="setLang('ar')">عربي</button>
+      <button class="lang-btn" id="langEn" onclick="setLang('en')">EN</button>
+    </div>
     <button class="theme-btn" id="themeBtn" title="گۆڕینی تیم">🌙</button>
     <button class="clear-btn" id="clearBtn">🗑️ سڕینەوە</button>
   </div>
@@ -517,6 +542,74 @@ async function send(text) {
     inp.focus();
   }
 }
+
+// ── Language Switcher ──
+const LANGS = {
+  ku: {
+    dir: 'rtl',
+    placeholder: 'پرسیارەکەت بنووسە... (کوردی، ئینگلیزی، عەرەبی)',
+    welcome: 'بەخێربێیت بۆ یاریدەدەری ئەکادیمی زانکۆی ئەربیلی نێودەوڵەتی 🎓\n\nئەمڕۆ چی دەتوانم یاریدەت بدەم؟\n\n✅ ڕاپۆرت · توێژینەوە · کۆد · ئامار · فەلسەفە',
+    clear: '🗑️ سڕینەوە',
+    hint: 'زانکۆی ئەربیلی نێودەوڵەتی — Excellence in Education & Research · EIU © 2025',
+    sugs: ['📝 ڕاپۆرت', '💡 بابەت', '🐍 Python', '📚 APA'],
+    sugQ: ['چۆن ڕاپۆرتی باش بنووسم؟','بابەتی توێژینەوەم پێشنیار بکە','کۆدی Python بنووسە','APA citation چۆنە؟'],
+  },
+  ar: {
+    dir: 'rtl',
+    placeholder: 'اكتب سؤالك... (العربية، الإنجليزية، الكردية)',
+    welcome: 'مرحباً بك في المساعد الأكاديمي لجامعة أربيل الدولية 🎓\n\nكيف يمكنني مساعدتك اليوم؟\n\n✅ التقارير · البحوث · البرمجة · الإحصاء · الفلسفة',
+    clear: '🗑️ مسح',
+    hint: 'جامعة أربيل الدولية — Excellence in Education & Research · EIU © 2025',
+    sugs: ['📝 تقرير', '💡 موضوع', '🐍 Python', '📚 APA'],
+    sugQ: ['كيف أكتب تقريراً أكاديمياً؟','اقترح موضوع بحث لي','اكتب كود Python','ما هو نظام APA؟'],
+  },
+  en: {
+    dir: 'ltr',
+    placeholder: 'Ask your question... (English, Kurdish, Arabic)',
+    welcome: 'Welcome to the Academic AI Assistant of Erbil International University 🎓\n\nHow can I help you today?\n\n✅ Reports · Research · Code · Statistics · Philosophy',
+    clear: '🗑️ Clear',
+    hint: 'Erbil International University — Excellence in Education & Research · EIU © 2025',
+    sugs: ['📝 Report', '💡 Topic', '🐍 Python', '📚 APA'],
+    sugQ: ['How to write an academic report?','Suggest a research topic for me','Write Python code','What is APA citation?'],
+  }
+};
+
+let currentLang = localStorage.getItem('eiu_lang') || 'ku';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('eiu_lang', lang);
+  const L = LANGS[lang];
+
+  // Update direction
+  document.documentElement.dir = L.dir;
+  document.documentElement.lang = lang;
+
+  // Update input placeholder
+  inp.placeholder = L.placeholder;
+
+  // Update clear button
+  document.getElementById('clearBtn').textContent = L.clear;
+
+  // Update hint
+  document.querySelector('.hint').textContent = L.hint;
+
+  // Update suggestions
+  const sugBtns = document.querySelectorAll('.sug-btn');
+  sugBtns.forEach((btn, i) => {
+    btn.textContent = L.sugs[i] || btn.textContent;
+    btn.dataset.q = L.sugQ[i] || btn.dataset.q;
+  });
+
+  // Update active lang button
+  ['ku','ar','en'].forEach(l => {
+    document.getElementById('lang'+l.charAt(0).toUpperCase()+l.slice(1))?.classList.remove('active');
+  });
+  document.getElementById('lang'+lang.charAt(0).toUpperCase()+lang.slice(1))?.classList.add('active');
+}
+
+// Apply saved language on load
+setLang(currentLang);
 
 btn.addEventListener('click', () => send());
 inp.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
