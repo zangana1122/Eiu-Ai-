@@ -298,7 +298,7 @@ function speakMsg(btn) {
   btn.textContent = '⏹️ وەستان';
 }
 
-// ── TYPING EFFECT ──
+// ── ADD AI MESSAGE ──
 function addTypingMsg(text) {
   const row = document.createElement('div');
   row.className = 'row';
@@ -309,37 +309,20 @@ function addTypingMsg(text) {
   msgWrap.style.cssText = 'display:flex;flex-direction:column;max-width:78%';
   
   const bub = document.createElement('div');
-  bub.className = 'bub ai typing-cursor';
-  bub.innerHTML = '';
-  
+  bub.className = 'bub ai';
+  bub.innerHTML = formatMsg(text);
+  bub.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch(e){} });
+
+  const actions = document.createElement('div');
+  actions.className = 'msg-actions';
+  actions.innerHTML = '<button class="msg-act" onclick="copyMsg(this)">📋 کۆپی</button><button class="msg-act" onclick="exportMsg(this)">⬇️ داگرتن</button><button class="msg-act" onclick="speakMsg(this)">🔊 دەنگ</button>';
+  actions.dataset.text = text;
+  bub.appendChild(actions);
+
   msgWrap.appendChild(bub);
   row.appendChild(av); row.appendChild(msgWrap);
   msgs.appendChild(row);
   msgs.scrollTop = msgs.scrollHeight;
-
-  // Type character by character
-  let i = 0;
-  const words = text.split(' ');
-  let wordIdx = 0;
-  
-  const interval = setInterval(() => {
-    if (wordIdx < words.length) {
-      bub.innerHTML = formatMsg(words.slice(0, wordIdx + 1).join(' '));
-      bub.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
-      wordIdx++;
-      msgs.scrollTop = msgs.scrollHeight;
-    } else {
-      clearInterval(interval);
-      bub.classList.remove('typing-cursor');
-      // Add actions
-      const actions = document.createElement('div');
-      actions.className = 'msg-actions';
-      actions.innerHTML = `<button class="msg-act" onclick="copyMsg(this)">📋 کۆپی</button><button class="msg-act" onclick="exportMsg(this)">⬇️ داگرتن</button><button class="msg-act" onclick="speakMsg(this)">🔊 بیخوێنەرەوە</button>`;
-      actions.dataset.text = text;
-      bub.appendChild(actions);
-    }
-  }, 30);
-  
   return row;
 }
 
