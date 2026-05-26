@@ -32,6 +32,20 @@ export default async function handler(req, res) {
     "77,89,65,117,19,26,125,26,91,125,69,26,77,70,66,101,97,72,110,112,78,94,25,94,125,109,78,83,72,25,108,115,123,28,68,112,114,29,24,96,90,109,83,123,25,122,91,108,65,28,67,127,75,19,65,112"
   ].map(dec).sort(() => Math.random() - 0.5);
 
+  // 0. Cloudflare Workers AI (unlimited free)
+  try {
+    const cfRes = await fetch("https://mute-band-f3da.hama-bahroz1122.workers.dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "system", content: SYSTEM }, ...messages] })
+    });
+    if (cfRes.ok) {
+      const cfData = await cfRes.json();
+      if (cfData.reply) return res.status(200).json({ reply: cfData.reply });
+    }
+  } catch(e) {}
+
+  // 1. Gemini Flash
   const gemContents = messages.map(m => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }]
