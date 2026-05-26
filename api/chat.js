@@ -35,13 +35,16 @@ export default async function handler(req, res) {
   ];
 
   // Try Gemini keys
-  for (const GK of gemKeys) {
-    try {
-      const gemContents = messages.map(m => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }]
-      }));
+  // Shuffle Gemini keys for better distribution
+  const shuffledGem = [...gemKeys].sort(() => Math.random() - 0.5);
+  
+  const gemContents = messages.map(m => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }]
+  }));
 
+  for (const GK of shuffledGem) {
+    try {
       const gemRes = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + GK,
         {
@@ -56,9 +59,9 @@ export default async function handler(req, res) {
       );
       const gemData = await gemRes.json();
       
-      // Skip if rate limited or blocked
       if (gemData.error?.code === 429 || gemData.error?.status === "RESOURCE_EXHAUSTED") continue;
       if (gemData.error?.code === 403) continue;
+      if (gemData.error) continue;
       
       const text = gemData.candidates?.[0]?.content?.parts?.[0]?.text;
       if (text) return res.status(200).json({ reply: text });
@@ -74,7 +77,9 @@ export default async function handler(req, res) {
     ["gsk_90W0qWo0glhOKbDZdt3t","WGdyb3FYQ6nZX72JpGyQ","3PqFk6iUa9kZ"],
   ];
 
-  for (const parts of groqAttempts) {
+  // Shuffle Groq for better distribution
+  const shuffledGroq = [...groqAttempts].sort(() => Math.random() - 0.5);
+  for (const parts of shuffledGroq) {
     for (const model of ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]) {
       try {
         const res2 = await fetch("https://api.groq.com/openai/v1/chat/completions", {
