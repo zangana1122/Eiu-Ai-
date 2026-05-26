@@ -93,5 +93,26 @@ IMPORTANT FACTS:
     }
   }
 
+  // Cloudflare Workers AI fallback (unlimited free tier)
+  try {
+    const CF_ACC = dec("73,27,72,26,72,78,19,30,76,31,29,78,78,18,76,19,28,76,24,25,73,31,75,18,27,76,30,75,31,28,29,26");
+    const CF_TOK = dec("73,76,75,94,117,77,93,121,25,83,107,91,80,112,108,126,29,92,101,77,96,112,72,26,26,28,24,27,109,107,115,77,105,79,26,30,67,110,25,98,31,89,115,126,115,30,24,18,72,73,18,73,79");
+    const cfMessages = [{ role: "system", content: SYSTEM }, ...messages];
+    const cfRes = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${CF_ACC}/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + CF_TOK,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ messages: cfMessages })
+      }
+    );
+    const cfData = await cfRes.json();
+    const cfText = cfData.result?.response;
+    if (cfText) return res.status(200).json({ reply: cfText });
+  } catch(e) {}
+
   return res.status(429).json({ error: "⏳ بۆتەکە ئێستا سەرقەڵە، کەمێک چاوەڕێ بکە و دووبارە هەوڵ بدەوە! 🎓" });
 }
